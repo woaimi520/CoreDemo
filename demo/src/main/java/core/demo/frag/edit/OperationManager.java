@@ -56,18 +56,18 @@ public class OperationManager implements TextWatcher {
             
             int idx = -1;
             if (dstEnd > 0) {
-                editable.delete(dstStart, dstEnd);
+                editable.delete(dstStart, dstEnd); //  "abcd12"  3  5 ->abcd
                 
                 if (src == null) {
                     idx = dstStart;
                 }
             }
             if (src != null) {
-                editable.insert(srcStart, src);
-                idx = srcStart + src.length();
+                editable.insert(srcStart, src);// adcd "" 3 3->abcd
+                idx = srcStart + src.length();//3+0
             }
             if (idx >= 0) {
-                text.setSelection(idx);
+                text.setSelection(idx);//光标弄到 adcd 后 真尼玛巧妙
             }
         }
         
@@ -143,29 +143,31 @@ public class OperationManager implements TextWatcher {
         enable = true;
         return this;
     }
-    
+    //  改变前字符 位置  选取改变字符的长度  替换字符的长度
     @Override
+    //abcd 改为abc12d  参数： abcd 3 0 2  改变前字符串 位置 改变的字符长度（0为挤进去） 将替换的字符长度
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         if (count > 0) {
-            int end = start + count;
+            int end = start + count;// 3=3+0
             if (enable) {
                 if (opt == null) {
                     opt = new EditOperation();
                 }
-                opt.setSrc(s.subSequence(start, end), start, end);
+                opt.setSrc(s.subSequence(start, end), start, end);// "" 3 3
             }
         }
     }
     
     @Override
+    //abcd 改为abc12d  参数： 改为abc12d 3 0 2  改变后字符串 位置 改变的字符长度（0为挤进去） 将替换的字符长度
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (count > 0) {
-            int end = start + count;
+            int end = start + count;// 5=3+2
             if (enable) {
                 if (opt == null) {
                     opt = new EditOperation();
                 }
-                opt.setDst(s.subSequence(start, end), start, end);
+                opt.setDst(s.subSequence(start, end), start, end);//  "12"  3  5
             }
         }
     }
@@ -173,11 +175,11 @@ public class OperationManager implements TextWatcher {
     @Override
     public void afterTextChanged(Editable s) {
         if (enable && opt != null) {
-            if (!redoOpts.isEmpty()) {
+            if (!redoOpts.isEmpty()) {//0
                 redoOpts.clear();
             }
             
-            undoOpts.push(opt);
+            undoOpts.push(opt); //存入list
         }
         opt = null;
     }
@@ -195,7 +197,7 @@ public class OperationManager implements TextWatcher {
     
     public boolean undo() {
         if (canUndo()) {
-            EditOperation undoOpt = undoOpts.pop();
+            EditOperation undoOpt = undoOpts.pop();// "" 3  3
             
             //屏蔽撤销产生的事件
             disable();
@@ -203,7 +205,7 @@ public class OperationManager implements TextWatcher {
             enable();
             
             //填入重做栈
-            redoOpts.push(undoOpt);
+            redoOpts.push(undoOpt);//放入2的栈中
             return true;
         }
         return false;

@@ -65,7 +65,7 @@ public class EditableText extends AppCompatEditText {
         Bundle bundle = (Bundle) state;
         Parcelable superState = bundle.getParcelable(KEY_SUPER);
         
-        mgr.disable();
+        mgr.disable();//不保存记录了
         super.onRestoreInstanceState(superState);
         mgr.enable();
         
